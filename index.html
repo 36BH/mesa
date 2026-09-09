@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MÉTODO MESA®</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, sans-serif; background: #f7f4ef; color: #222; }
+    .container { max-width: 650px; margin: auto; padding: 20px; }
+    .brand { text-align: center; font-weight: bold; letter-spacing: 2px; margin-bottom: 20px; }
+    .card { background: white; padding: 28px; border-radius: 20px; box-shadow: 0 8px 30px rgba(0,0,0,0.06); }
+    h1 { font-size: 38px; line-height: 1.05; margin-top: 0; }
+    h2 { font-size: 26px; }
+    p { line-height: 1.5; }
+    .muted { color: #666; }
+    button { width: 100%; padding: 16px; border-radius: 14px; border: none; font-size: 16px; cursor: pointer; }
+    .main-button { background: #222; color: white; font-weight: bold; margin-top: 18px; }
+    .option { background: white; border: 1px solid #ddd; text-align: left; margin-bottom: 10px; font-weight: 600; }
+    .option:hover { background: #f5f5f5; }
+    .letter { display: inline-block; width: 30px; height: 30px; line-height: 30px; text-align: center; border-radius: 8px; background: #eee; margin-right: 10px; }
+    .hidden { display: none; }
+    .progress-container { height: 8px; background: #ddd; border-radius: 10px; margin-bottom: 20px; overflow: hidden; }
+    .progress { height: 100%; background: #222; width: 0%; transition: 0.3s; }
+    .counter { display: flex; justify-content: space-between; font-size: 13px; color: #666; margin-bottom: 8px; }
+    .profile { padding: 10px 14px; display: inline-block; border-radius: 30px; font-weight: bold; margin-bottom: 15px; }
+    .red { background: #ffd9d9; }
+    .yellow { background: #fff0b8; }
+    .blue { background: #dbeaff; }
+    .green { background: #d9f2df; }
+    .result-box { border: 1px solid #ddd; border-radius: 14px; padding: 15px; margin: 12px 0; }
+    .quote { font-size: 20px; font-weight: bold; margin: 22px 0; }
+    @media(max-width:500px) { h1 { font-size: 32px; } .card { padding: 22px; } }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="brand">MÉTODO MESA®</div>
+
+  <section id="welcome" class="card">
+    <p><strong>Diagnóstico interactivo</strong></p>
+    <h1>¿Cómo te sientas a negociar?</h1>
+    <p class="muted">Este no es un examen. Tampoco es un test de personalidad.</p>
+    <p>Es una invitación a descubrir cómo enfrentas una conversación importante.</p>
+    <p>Responde con honestidad. No existen respuestas correctas o incorrectas.</p>
+    <button class="main-button" id="startButton">Descubrir mi estilo</button>
+  </section>
+
+  <section id="quiz" class="hidden">
+    <div class="counter"><span id="counter"></span><span id="percentage"></span></div>
+    <div class="progress-container"><div id="progress" class="progress"></div></div>
+    <div class="card">
+      <h2 id="question"></h2>
+      <div id="options"></div>
+    </div>
+  </section>
+
+  <section id="result" class="card hidden">
+    <div id="profileColor" class="profile"></div>
+    <h1 id="profileName"></h1>
+    <div class="result-box"><strong>Fortaleza</strong><p id="strength"></p></div>
+    <div class="result-box"><strong>Riesgo</strong><p id="risk"></p></div>
+    <div id="phrase" class="quote"></div>
+    <p>Ningún perfil es mejor que otro.</p>
+    <p>Una gran negociadora sabe cuándo convencer, cuándo escuchar, cuándo conciliar y cuándo construir.</p>
+    <h2>¿Qué tipo de negociadora quieres ser cuando te sientes en tu próxima mesa?</h2>
+    <button class="main-button" id="restartButton">Volver a empezar</button>
+  </section>
+</div>
+
+<script>
+const questions = [
+  { question: "Cuando escucho un 'no'...", answers: [
+    "Intento convencer inmediatamente.",
+    "Pregunto qué hay detrás de ese 'no'.",
+    "Prefiero retirarme y buscar otra oportunidad.",
+    "Busco una alternativa que funcione para ambas partes."
+  ]},
+  { question: "En una negociación normalmente...", answers: [
+    "Hablo más de lo que escucho.",
+    "Escucho antes de responder.",
+    "Espero a que la otra persona lleve la conversación.",
+    "Hago muchas preguntas."
+  ]},
+  { question: "Si la conversación se pone tensa...", answers: [
+    "Defiendo mi postura con más fuerza.",
+    "Busco bajar la tensión.",
+    "Me incomoda y cedo rápido.",
+    "Intento entender qué está provocando el conflicto."
+  ]},
+  { question: "Antes de una reunión importante pienso más en...", answers: [
+    "Lo que voy a decir.",
+    "Lo que quiero lograr.",
+    "Lo que la otra persona puede necesitar.",
+    "Cómo evitar que salga mal."
+  ]},
+  { question: "Cuando consigo un acuerdo siento que fue exitoso si...", answers: [
+    "Obtuve exactamente lo que quería.",
+    "Ambos quedamos satisfechos.",
+    "No hubo conflicto.",
+    "La relación quedó más fuerte que antes."
+  ]},
+  { question: "¿Qué haces cuando alguien rechaza tu propuesta?", answers: [
+    "Presento más argumentos.",
+    "Pregunto qué tendría que cambiar para que fuera viable.",
+    "Acepto el rechazo y cambio de tema.",
+    "Busco un punto intermedio."
+  ]},
+  { question: "¿Qué es lo más difícil para ti?", answers: [
+    "Escuchar sin interrumpir.",
+    "Pedir lo que realmente quiero.",
+    "Decir 'no'.",
+    "Mantener la calma bajo presión."
+  ]},
+  { question: "Cuando una negociación termina...", answers: [
+    "Pienso si pude haber conseguido más.",
+    "Pienso si ambas partes ganaron.",
+    "Me siento aliviada de que terminó.",
+    "Pienso en la relación que sigue después del acuerdo."
+  ]},
+  { question: "¿Qué frase te representa más?", answers: [
+    "Hay que convencer.",
+    "Hay que entender.",
+    "Hay que evitar problemas.",
+    "Hay que construir confianza."
+  ]},
+  { question: "Si tuvieras que definir una buena negociación...", answers: [
+    "Conseguir un sí.",
+    "Encontrar un acuerdo.",
+    "Evitar perder.",
+    "Construir una relación."
+  ]}
+];
+
+const profiles = {
+  A: { name: "La Convencedora", color: "Roja", className: "red",
+       strength: "Transmite seguridad y empuja las decisiones.",
+       risk: "Puede escuchar menos de lo que necesita.",
+       phrase: "«Quiero que me digan que sí.»" },
+  B: { name: "La Conciliadora", color: "Amarilla", className: "yellow",
+       strength: "Genera confianza y relaciones.",
+       risk: "A veces cede demasiado.",
+       phrase: "«Prefiero mantener la armonía.»" },
+  C: { name: "La Estratega", color: "Azul", className: "blue",
+       strength: "Observa, pregunta y entiende antes de actuar.",
+       risk: "Puede analizar demasiado.",
+       phrase: "«Antes de hablar, necesito comprender.»" },
+  D: { name: "La Constructora", color: "Verde", className: "green",
+       strength: "Busca soluciones donde ambas partes ganan.",
+       risk: "Puede dedicar demasiado tiempo al consenso.",
+       phrase: "«La negociación empieza cuando ambos estamos del mismo lado de la mesa.»" }
+};
+
+let currentQuestion = 0;
+let scores = { A: 0, B: 0, C: 0, D: 0 };
+
+const welcome = document.getElementById("welcome");
+const quiz = document.getElementById("quiz");
+const result = document.getElementById("result");
+const startButton = document.getElementById("startButton");
+const restartButton = document.getElementById("restartButton");
+
+startButton.addEventListener("click", function () {
+  welcome.classList.add("hidden");
+  quiz.classList.remove("hidden");
+  showQuestion();
+});
+
+restartButton.addEventListener("click", function () {
+  currentQuestion = 0;
+  scores = { A: 0, B: 0, C: 0, D: 0 };
+  result.classList.add("hidden");
+  welcome.classList.remove("hidden");
+});
+
+function showQuestion() {
+  const item = questions[currentQuestion];
+  document.getElementById("question").textContent = item.question;
+  document.getElementById("counter").textContent =
+    "Pregunta " + (currentQuestion + 1) + " de " + questions.length;
+
+  const percentage = Math.round(((currentQuestion + 1) / questions.length) * 100);
+  document.getElementById("percentage").textContent = percentage + "%";
+  document.getElementById("progress").style.width = percentage + "%";
+
+  const optionsContainer = document.getElementById("options");
+  optionsContainer.innerHTML = "";
+  const letters = ["A", "B", "C", "D"];
+
+  item.answers.forEach(function (answer, index) {
+    const button = document.createElement("button");
+    button.className = "option";
+    button.innerHTML = '<span class="letter">' + letters[index] + '</span>' + answer;
+    button.addEventListener("click", function () {
+      selectAnswer(letters[index]);
+    });
+    optionsContainer.appendChild(button);
+  });
+}
+
+function selectAnswer(letter) {
+  scores[letter]++;
+  currentQuestion++;
+  if (currentQuestion < questions.length) {
+    showQuestion();
+  } else {
+    showResult();
+  }
+}
+
+function showResult() {
+  quiz.classList.add("hidden");
+  result.classList.remove("hidden");
+
+  let winner = "A";
+  let highest = scores.A;
+  Object.keys(scores).forEach(function (key) {
+    if (scores[key] > highest) {
+      highest = scores[key];
+      winner = key;
+    }
+  });
+
+  const profile = profiles[winner];
+  const colorElement = document.getElementById("profileColor");
+  colorElement.textContent = profile.color;
+  colorElement.className = "profile " + profile.className;
+
+  document.getElementById("profileName").textContent = profile.name;
+  document.getElementById("strength").textContent = profile.strength;
+  document.getElementById("risk").textContent = profile.risk;
+  document.getElementById("phrase").textContent = profile.phrase;
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+</script>
+</body>
+</html>
